@@ -27,6 +27,43 @@ router.get("/merchant/:merchantId", async (req, res) => {
   const deals = await Deal.find({ merchant: merchantId });
   res.json(deals);
 });
+
+/*create a movie deal*/
+router.post("/new_movie",async (req, res, next) => {
+  try{
+    const response = validatemovieDeal(req.body);
+    if (response.error) res.status(400).send(response.error.details[0].message);
+
+    req.body.isActive = true;
+    const merchant = await Merchant.findById(req.body.merchant);
+
+    if (!merchant)
+      return res.status(400).send("No merchant with the given id found");
+    const deal = new Deal({
+      ...req.body,
+      createdOn: moment().format("D/M/YYYY, h:m A"),
+    });
+
+    for(var i=0;i<req.body.row;i++){
+      for (var j=1;j<=req.body.col;j++) {
+        deal.seats.push({seatno:(String.fromCharCode(65+i)+j)});
+      }
+    }
+
+    merchant.deals.push(deal._id);
+    await merchant.save();
+    await deal.save();
+    res.json(deal);
+
+  }
+  catch(err) {
+    res.json("Something went wrong!");
+  }
+
+  });
+
+
+
 // * Create new deal
 // * Done
 router.post("/new", (req, res, next) => {

@@ -129,13 +129,15 @@ function validateactivityDeal(deal) {
 function validatemovieDeal(deal) {
   const schema = Joi.object({
     movieName: Joi.string().required(),
-    seats: Joi.array().items(
+    /*seats: Joi.array().items(
       Joi.object({
         seatno:Joi.string().required(),
         available:Joi.boolean(),
       })
-      ),
+      ),*/
     description: Joi.string(),
+    row:Joi.number().required(),
+    col:Joi.number().required(),
     img: Joi.string().required(),
     merchant: Joi.objectId().required(),
     price: Joi.number().required(),
