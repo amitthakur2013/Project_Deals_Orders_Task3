@@ -155,6 +155,14 @@ router.get("/orders", async (req, res) => {
 
 // * Create a new order of Normal deal
 router.post("/new", async (req, res) => {
+  /*req.body ====>{
+    "deal":"5f3fe44200346b2b400e0291",
+    "outlet":"5f3df8bd8b809123ecb147b3",
+    "userid":"5f3fe31200346b2b400e028f",
+    "price":500,
+    "discountedPrice":400,
+    "useCredit":true}*/
+
   try {
     var redeemCode =
       shortid.generate().toString() +
@@ -180,6 +188,18 @@ router.post("/new", async (req, res) => {
     var customer = await Customer.findById(req.body.userid).exec();
     customer.orders.push(newOrder._id);
     customer.markModified("orders");
+    //await customer.save();
+
+    if (req.body.useCredit){
+      if(newOrder.discountedPrice <= customer.credit ) {
+        customer.credit-=newOrder.discountedPrice;
+        newOrder.discountedPrice=0;
+      } else {
+        newOrder.discountedPrice-=customer.credit;
+        customer.credit=0;
+      }
+      await newOrder.save();
+    }
     await customer.save();
 
     res.send(newOrder);
@@ -233,8 +253,20 @@ router.post("/new_movie",(req, res) => {
     var customer = await Customer.findById(req.body.userid).exec();
     customer.orders.push(newOrder._id);
     customer.markModified("orders");
-    await customer.save();
+    //await customer.save();
 
+    if (req.body.useCredit){
+      if(newOrder.discountedPrice <= customer.credit ) {
+        customer.credit-=newOrder.discountedPrice;
+        newOrder.discountedPrice=0;
+      } else {
+        newOrder.discountedPrice-=customer.credit;
+        customer.credit=0;
+      }
+      await newOrder.save();
+    }
+    await customer.save();
+    
     res.send(newOrder);
     }
     catch(err) {

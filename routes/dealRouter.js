@@ -28,7 +28,7 @@ router.get("/merchant/:merchantId", async (req, res) => {
   res.json(deals);
 });
 
-/*create a movie deal*/
+/*create a new movie deal*/
 router.post("/new_movie",async (req, res, next) => {
   try{
     const response = validatemovieDeal(req.body);
