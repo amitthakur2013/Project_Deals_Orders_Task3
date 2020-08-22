@@ -7,20 +7,21 @@ const dealSchema = new mongoose.Schema({
   movieName: String,
   seats:[{
     seatno:String,
-    available:{type:Boolean,default:true}
+    isavailable:{type:Boolean,default:true}
   }],
-  adult:{
-    type:Number
-  },
-  child:{
-    type:Number
-  },
+  accomodants:Number,
+  room_available_for:Number,
+  rooms:[{
+    roomno:String,
+    type:String,
+    isavailable:{type:Boolean,default:true}
+  }],
   act_availability:[{
     day:String,
-    slot:{
+    slot:[{
       from:String,
       to:String,
-    }
+    }]
   }],
   description: String,
   img: {
@@ -67,6 +68,16 @@ const dealSchema = new mongoose.Schema({
       required: true,
     },
   },
+  display:{
+    from:{
+      type:String,
+      required:true
+    },
+    to:{
+      type:String,
+      required:true
+    },
+  },
   location: {
     type: String,
   },
@@ -89,6 +100,10 @@ function validateDeal(deal) {
       from: Joi.string().required(),
       to: Joi.string().required(),
     }),
+    display: Joi.object({
+      from: Joi.string().required(),
+      to: Joi.string().required(),
+    }),
     location: Joi.string(),
   });
   return schema.validate(deal);
@@ -100,10 +115,10 @@ function validateactivityDeal(deal) {
     act_availability:Joi.array().items(
       Joi.object({
         day:Joi.string().required(),
-        slot:Joi.object({
+        slot:Joi.array().items(Joi.object({
         from:Joi.string().required(),
         to:Joi.string().required()
-        })
+        }))
       })
       ),
     adult: Joi.number().required(),
@@ -121,6 +136,10 @@ function validateactivityDeal(deal) {
       from: Joi.string().required(),
       to: Joi.string().required(),
     }),
+    display: Joi.object({
+      from: Joi.string().required(),
+      to: Joi.string().required(),
+    }),
     location: Joi.string(),
   });
   return schema.validate(deal);
@@ -129,12 +148,6 @@ function validateactivityDeal(deal) {
 function validatemovieDeal(deal) {
   const schema = Joi.object({
     movieName: Joi.string().required(),
-    /*seats: Joi.array().items(
-      Joi.object({
-        seatno:Joi.string().required(),
-        available:Joi.boolean(),
-      })
-      ),*/
     description: Joi.string(),
     row:Joi.number().required(),
     col:Joi.number().required(),
@@ -150,12 +163,48 @@ function validatemovieDeal(deal) {
       from: Joi.string().required(),
       to: Joi.string().required(),
     }),
+    display: Joi.object({
+      from: Joi.string().required(),
+      to: Joi.string().required(),
+    }),
     location: Joi.string(),
   });
   return schema.validate(deal);
 }
 
-
+function validatehotelDeal(deal) {
+  const schema = Joi.object({
+    name: Joi.string(),
+    description: Joi.string(),
+    img: Joi.string().required(),
+    merchant: Joi.objectId().required(),
+    price: Joi.number().required(),
+    commision: Joi.number().required(),
+    discountPercent: Joi.number(),
+    prefernceOrder: Joi.number().required(),
+    category: Joi.objectId().required(),
+    accomodants:Joi.number(),
+    room_available_for:Joi.number(),
+    rooms:Joi.array().items(
+      Joi.object({
+        roomno:Joi.string(),
+        type:Joi.string(),
+        isavailable:Joi.boolean()
+      })
+      ),
+    // Subcategory: Joi.objectId().required(),
+    valid: Joi.object({
+      from: Joi.string().required(),
+      to: Joi.string().required(),
+    }),
+    display: Joi.object({
+      from: Joi.string().required(),
+      to: Joi.string().required(),
+    }),
+    location: Joi.string(),
+  });
+  return schema.validate(deal);
+}
 
 const Deal = mongoose.model("Deal", dealSchema);
 
@@ -163,3 +212,4 @@ exports.Deal = Deal;
 exports.validateDeal= validateDeal;
 exports.validateactivityDeal = validateactivityDeal;
 exports.validatemovieDeal = validatemovieDeal;
+exports.validatehotelDeal=validatehotelDeal;

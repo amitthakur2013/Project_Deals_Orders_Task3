@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const moment = require("moment");
 
-const { Deal, validateDeal, validateactivityDeal, validatemovieDeal } = require("../models/Deals");
+const { Deal, validateDeal, validateactivityDeal, validatemovieDeal, validathotelDeal } = require("../models/Deals");
 const Category=require("../models/category");
 const { Merchant } = require("../models/merchant");
 
@@ -28,7 +28,7 @@ router.get("/merchant/:merchantId", async (req, res) => {
   res.json(deals);
 });
 
-/*create a new movie deal*/
+/*create a new MOVIE deal*/
 router.post("/new_movie",async (req, res, next) => {
   try{
     const response = validatemovieDeal(req.body);
@@ -43,6 +43,7 @@ router.post("/new_movie",async (req, res, next) => {
       ...req.body,
       createdOn: moment().format("D/M/YYYY, h:m A"),
     });
+    /* ROW and COL for no of seats*/
 
     for(var i=0;i<req.body.row;i++){
       for (var j=1;j<=req.body.col;j++) {
@@ -62,9 +63,7 @@ router.post("/new_movie",async (req, res, next) => {
 
   });
 
-
-
-// * Create new deal
+// * Create new deal (NORMAL AND ACTIVITY AND HOTEL)
 // * Done
 router.post("/new", (req, res, next) => {
   Category.findById(req.body.category)
@@ -78,11 +77,10 @@ router.post("/new", (req, res, next) => {
       const response = validateDeal(req.body);
       if (response.error) res.status(400).send(response.error.details[0].message);
     }
-    else if(cat.name.toString() === 'Movie'){
-      const response = validatemovieDeal(req.body);
+    else if(cat.name.toString() === 'Hotel'){
+      const response = validathotelDeal(req.body);
       if (response.error) res.status(400).send(response.error.details[0].message);
     }
-    
     req.body.isActive = true;
 
     const merchant = await Merchant.findById(req.body.merchant);

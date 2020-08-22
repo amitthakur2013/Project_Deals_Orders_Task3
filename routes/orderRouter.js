@@ -218,6 +218,8 @@ router.post("/new_movie",(req, res) => {
     "-" +
     randomize("Aa0", 6).toString();
 
+
+  /* req.body.seat => "A1-A12" */  
   const seat=req.body.seat.trim().split("-")
   var s=seat[0][0];
   var a=parseInt(seat[0].substring(1,));
@@ -231,7 +233,7 @@ router.post("/new_movie",(req, res) => {
     try{ 
       deal.seats.map((seat) => {
       if(l.includes(seat.seatno)){
-        seat.available=false;
+        seat.isavailable=false;
         }
       })
       await deal.save();
@@ -266,7 +268,7 @@ router.post("/new_movie",(req, res) => {
       await newOrder.save();
     }
     await customer.save();
-    
+
     res.send(newOrder);
     }
     catch(err) {
@@ -278,6 +280,24 @@ router.post("/new_movie",(req, res) => {
   .catch(err => res.status(400).send("Something went wrong!"));
 
 })
+
+/*Create a new order of a hotel deal*/
+router.post("/new_movie",(req, res) => {
+  var redeemCode =
+    shortid.generate().toString() +
+    "-" +
+    shortid.generate().toString() +
+    "-" +
+    randomize("Aa0", 6).toString();
+
+  Deal.findById(req.body.deal)
+  .then(async (deal) => {
+    deal.rooms-=1
+    await deal.save();
+
+  })
+  .catch((err) => res.statue(400).send(err))
+});
 
 // * Redeem Order
 router.post("/redeem/:order_id", async (req, res) => {
