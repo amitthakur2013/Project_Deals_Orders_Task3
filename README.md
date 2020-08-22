@@ -10,3 +10,5 @@ Footer CMS functionality
 
 Task 3:
 Activity and Movie Deals
+
+customer merchant etc are dummy files
