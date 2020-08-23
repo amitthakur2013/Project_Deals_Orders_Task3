@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const moment = require("moment");
 
-const { Deal, validateDeal, validateactivityDeal, validatemovieDeal, validathotelDeal } = require("../models/Deals");
+const { Deal, validateDeal, validateactivityDeal, validatemovieDeal, validatehotelDeal } = require("../models/Deals");
 const Category=require("../models/category");
 const { Merchant } = require("../models/merchant");
 
@@ -78,7 +78,7 @@ router.post("/new", (req, res, next) => {
       if (response.error) res.status(400).send(response.error.details[0].message);
     }
     else if(cat.name.toString() === 'Hotel'){
-      const response = validathotelDeal(req.body);
+      const response = validatehotelDeal(req.body);
       if (response.error) res.status(400).send(response.error.details[0].message);
     }
     req.body.isActive = true;

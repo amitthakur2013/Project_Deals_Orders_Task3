@@ -282,7 +282,7 @@ router.post("/new_movie",(req, res) => {
 })
 
 /*Create a new order of a hotel deal*/
-router.post("/new_movie",(req, res) => {
+router.post("/new_hotel",(req, res) => {
   var redeemCode =
     shortid.generate().toString() +
     "-" +
@@ -292,8 +292,64 @@ router.post("/new_movie",(req, res) => {
 
   Deal.findById(req.body.deal)
   .then(async (deal) => {
-    deal.rooms-=1
+    if(!deal.roomQty){
+      return res.send("No deal available");
+    }
+    deal.roomQty-=1;
     await deal.save();
+  
+    if(req.body.extraAdult) {
+      if (req.body.extraAdult + deal.adult <=deal.maxAdult) {
+        req.body.price+=deal.extraPrice*req.body.extraAdult;
+        req.body.discountedPrice+=deal.extraPrice*req.body.extraAdult;
+      } else{
+        return res.send('Max adult limit exceeded!');
+      }
+    }
+    if(req.body.extraChild) {
+      if (req.body.extraChild + deal.child <= deal.maxChild) {
+        req.body.price+=deal.extraPrice*req.body.extraChild;
+        req.body.discountedPrice+=deal.extraPrice*req.body.extraChild;
+      } else {
+        return res.send('Max child limit exceeded!')
+      }
+    }
+
+    if(req.body.meal){
+        req.body.discountedPrice+=req.body.meal.price;
+      }
+    var newOrder = await Order.create({
+      redeemCode: redeemCode,
+      deal: req.body.deal,
+      outlet: req.body.outlet,
+      // customer: req.user._id,
+      customer: req.body.userid,
+      status: "active",
+      purchasedOn: new Date(),
+      price: req.body.price,
+      promocode: req.body.promocodeApplied, // <-- This is an optional field
+      discountedPrice: req.body.discountedPrice,
+    });
+    // var customer = await Customer.findById(req.user._id).exec();
+    var customer = await Customer.findById(req.body.userid).exec();
+    customer.orders.push(newOrder._id);
+    customer.markModified("orders");
+    //await customer.save();
+
+    if (req.body.useCredit){
+      if(newOrder.discountedPrice <= customer.credit ) {
+        customer.credit-=newOrder.discountedPrice;
+        newOrder.discountedPrice=0;
+      } else {
+        newOrder.discountedPrice-=customer.credit;
+        customer.credit=0;
+      }
+      await newOrder.save();
+    }
+    await customer.save();
+
+    res.send(newOrder);
+
 
   })
   .catch((err) => res.statue(400).send(err))

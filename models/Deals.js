@@ -9,18 +9,23 @@ const dealSchema = new mongoose.Schema({
     seatno:String,
     isavailable:{type:Boolean,default:true}
   }],
-  accomodants:Number,
-  room_available_for:Number,
-  rooms:[{
-    roomno:String,
+  adult:Number,
+  child:Number,
+  maxAdult:Number,
+  maxChild:Number,
+  roomQty:Number,
+  meal:{
     type:String,
-    isavailable:{type:Boolean,default:true}
-  }],
+    price:Number
+  },
+  extraPrice:Number,
   act_availability:[{
     day:String,
     slot:[{
       from:String,
       to:String,
+      price:Number,
+      qty:Number
     }]
   }],
   description: String,
@@ -183,16 +188,16 @@ function validatehotelDeal(deal) {
     discountPercent: Joi.number(),
     prefernceOrder: Joi.number().required(),
     category: Joi.objectId().required(),
-    accomodants:Joi.number(),
-    room_available_for:Joi.number(),
-    rooms:Joi.array().items(
-      Joi.object({
-        roomno:Joi.string(),
-        type:Joi.string(),
-        isavailable:Joi.boolean()
-      })
-      ),
-    // Subcategory: Joi.objectId().required(),
+    roomQty:Joi.number().required(),
+    adult:Joi.number().required(),
+    child:Joi.number().required(),
+    maxAdult:Joi.number().required(),
+    maxChild:Joi.number().required(),
+    meal:Joi.object({
+      type:Joi.string(),
+      price:Joi.number()
+    }), 
+    extraPrice:Joi.number().required(),
     valid: Joi.object({
       from: Joi.string().required(),
       to: Joi.string().required(),
