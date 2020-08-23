@@ -9,6 +9,7 @@ const dealSchema = new mongoose.Schema({
     seatno:String,
     isavailable:{type:Boolean,default:true}
   }],
+  //hotel deal start
   adult:Number,
   child:Number,
   maxAdult:Number,
@@ -19,6 +20,7 @@ const dealSchema = new mongoose.Schema({
     price:Number
   },
   extraPrice:Number,
+  //hotel deal finished
   availability:[{
     day:String,
     slot:[{
