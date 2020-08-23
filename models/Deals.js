@@ -19,7 +19,7 @@ const dealSchema = new mongoose.Schema({
     price:Number
   },
   extraPrice:Number,
-  act_availability:[{
+  availability:[{
     day:String,
     slot:[{
       from:String,
@@ -117,7 +117,7 @@ function validateDeal(deal) {
 function validateactivityDeal(deal) {
   const schema = Joi.object({
     name: Joi.string(),
-    act_availability:Joi.array().items(
+    availability:Joi.array().items(
       Joi.object({
         day:Joi.string().required(),
         slot:Joi.array().items(Joi.object({
