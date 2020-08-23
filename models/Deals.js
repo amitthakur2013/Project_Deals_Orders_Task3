@@ -15,7 +15,7 @@ const dealSchema = new mongoose.Schema({
   maxChild:Number,
   roomQty:Number,
   meal:{
-    type:String,
+    mealtype:String,
     price:Number
   },
   extraPrice:Number,
@@ -194,7 +194,7 @@ function validatehotelDeal(deal) {
     maxAdult:Joi.number().required(),
     maxChild:Joi.number().required(),
     meal:Joi.object({
-      type:Joi.string(),
+      mealtype:Joi.string(),
       price:Joi.number()
     }), 
     extraPrice:Joi.number().required(),
