@@ -355,6 +355,77 @@ router.post("/new_hotel",(req, res) => {
   .catch((err) => res.statue(400).send(err))
 });
 
+/*Create a new Order of an activity deal*/
+router.post('/new_activity',(req, res) => {
+  var redeemCode =
+    shortid.generate().toString() +
+    "-" +
+    shortid.generate().toString() +
+    "-" +
+    randomize("Aa0", 6).toString();
+
+ Deal.findById(req.body.deal)
+ .then( async (deal)=> {
+  if(!deal) return res.send("deal not exist!!");
+  try{
+  deal.availability.map((avl)=>{
+    if (avl.day.toString() === req.body.day.toString()){
+      avl.slot.map((slt) => {
+        if ((slt.from.toString() === req.body.from.toString()) && (slt.to.toString() === req.body.to.toString())) {
+          if(!slt.qty) {
+            return res.send("Slot Not available!");
+          }
+          slt.qty-=1;
+          return;
+        }
+       })
+      return;
+    }
+  })
+  await deal.save();
+
+  var newOrder = await Order.create({
+      redeemCode: redeemCode,
+      deal: req.body.deal,
+      outlet: req.body.outlet,
+      // customer: req.user._id,
+      customer: req.body.userid,
+      status: "active",
+      purchasedOn: new Date(),
+      price: req.body.price,
+      promocode: req.body.promocodeApplied, // <-- This is an optional field
+      discountedPrice: req.body.discountedPrice,
+    });
+
+    // var customer = await Customer.findById(req.user._id).exec();
+    var customer = await Customer.findById(req.body.userid).exec();
+    customer.orders.push(newOrder._id);
+    customer.markModified("orders");
+    //await customer.save();
+
+    if (req.body.useCredit){
+      if(newOrder.discountedPrice <= customer.credit ) {
+        customer.credit-=newOrder.discountedPrice;
+        newOrder.discountedPrice=0;
+      } else {
+        newOrder.discountedPrice-=customer.credit;
+        customer.credit=0;
+      }
+      await newOrder.save();
+    }
+    await customer.save();
+
+    res.send(newOrder);
+  } catch(err) {
+    console.log(err);
+    return res.send("Something went wrong!");
+  }
+
+ })
+ .catch((err) => res.send("Something went wrong!"))
+
+})
+
 // * Redeem Order
 router.post("/redeem/:order_id", async (req, res) => {
   try {

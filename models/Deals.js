@@ -124,21 +124,21 @@ function validateactivityDeal(deal) {
         day:Joi.string().required(),
         slot:Joi.array().items(Joi.object({
         from:Joi.string().required(),
-        to:Joi.string().required()
+        to:Joi.string().required(),
+        price:Joi.number().required(),
+        qty:Joi.number().required()
         }))
       })
       ),
-    adult: Joi.number().required(),
-    child: Joi.number().required(),
     description: Joi.string(),
     img: Joi.string().required(),
     merchant: Joi.objectId().required(),
-    price: Joi.number().required(),
+    price: Joi.number().required(), 
     commision: Joi.number().required(),
     discountPercent: Joi.number(),
     prefernceOrder: Joi.number().required(),
     category: Joi.objectId().required(),
-    Subcategory: Joi.objectId().required(),
+    //Subcategory: Joi.objectId().required(),
     valid: Joi.object({
       from: Joi.string().required(),
       to: Joi.string().required(),
