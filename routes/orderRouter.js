@@ -213,11 +213,10 @@ router.post("/new", async (req, res) => {
 router.post("/new_movie",(req, res) => {
   var redeemCode =
     shortid.generate().toString() +
-    "-" +
+    "-" + 
     shortid.generate().toString() +
     "-" +
     randomize("Aa0", 6).toString();
-
 
   /* req.body.seat => "A1-A12" */  
   const seat=req.body.seat.trim().split("-")
@@ -231,11 +230,31 @@ router.post("/new_movie",(req, res) => {
   Deal.findById(req.body.deal)
   .then(async(deal)=> {
     try{ 
-      deal.seats.map((seat) => {
+      var flag=0;
+      deal.movieAvailability.map((avl)=>{
+      if (avl.day.toString() === req.body.day.toString()){
+        flag=1;
+        avl.slot.map((slt) => {
+          if ((slt.from.toString() === req.body.from.toString()) && (slt.to.toString() === req.body.to.toString())) {
+            slt.seats.map((seat) => {
+            if(l.includes(seat.seatno)){
+              if (!seat.isavailable) return res.send("Seat not available!pls book carefully!");
+              seat.isavailable=false;
+              }
+            
+            })
+            return;
+          }
+         })
+        return;
+      }
+    })
+      if (flag==0) return res.status(400).send("Movie not available on the given date!");
+     /* deal.seats.map((seat) => {
       if(l.includes(seat.seatno)){
         seat.isavailable=false;
         }
-      })
+      })*/
       await deal.save();
       
       var newOrder = await Order.create({
@@ -368,8 +387,10 @@ router.post('/new_activity',(req, res) => {
  .then( async (deal)=> {
   if(!deal) return res.send("deal not exist!!");
   try{
+    var flag=0;
   deal.availability.map((avl)=>{
     if (avl.day.toString() === req.body.day.toString()){
+      flag=1;
       avl.slot.map((slt) => {
         if ((slt.from.toString() === req.body.from.toString()) && (slt.to.toString() === req.body.to.toString())) {
           if(!slt.qty) {
@@ -382,6 +403,7 @@ router.post('/new_activity',(req, res) => {
       return;
     }
   })
+  if (flag==0) return res.status(400).send("Movie not available on the given date!");
   await deal.save();
 
   var newOrder = await Order.create({
