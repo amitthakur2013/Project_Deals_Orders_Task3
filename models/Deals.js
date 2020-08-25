@@ -5,10 +5,19 @@ Joi.objectId = require("joi-objectid")(Joi);
 const dealSchema = new mongoose.Schema({
   name: String,
   movieName: String,
-  seats:[{
-    seatno:String,
-    isavailable:{type:Boolean,default:true}
+  movieAvailability:[{
+    day:String,
+    slot:[{
+      from:String,
+      to:String,
+      price:Number,
+      seats:[{
+      seatno:String,
+      isavailable:{type:Boolean,default:true}
+            }]
+    }]
   }],
+
   //hotel deal start
   adult:Number,
   child:Number,
@@ -21,6 +30,7 @@ const dealSchema = new mongoose.Schema({
   },
   extraPrice:Number,
   //hotel deal finished
+
   availability:[{
     day:String,
     slot:[{
@@ -165,6 +175,16 @@ function validatemovieDeal(deal) {
     discountPercent: Joi.number(),
     prefernceOrder: Joi.number().required(),
     category: Joi.objectId().required(),
+    movieAvailability:Joi.array().items(
+      Joi.object({
+        day:Joi.string().required(),
+        slot:Joi.array().items(Joi.object({
+        from:Joi.string().required(),
+        to:Joi.string().required(),
+        price:Joi.number().required(),
+        }))
+      })
+      ),
     // Subcategory: Joi.objectId().required(),
     valid: Joi.object({
       from: Joi.string().required(),

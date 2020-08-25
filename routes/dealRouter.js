@@ -44,12 +44,17 @@ router.post("/new_movie",async (req, res, next) => {
       createdOn: moment().format("D/M/YYYY, h:m A"),
     });
     /* ROW and COL for no of seats*/
-
+    var seats=[]
     for(var i=0;i<req.body.row;i++){
       for (var j=1;j<=req.body.col;j++) {
-        deal.seats.push({seatno:(String.fromCharCode(65+i)+j)});
+        seats.push({seatno:(String.fromCharCode(65+i)+j),isavailable:true});
       }
     }
+    deal.movieAvailability.map((avl)=>{
+      avl.slot.map((slt)=>{
+        slt.seats=seats;
+      })
+    })
 
     merchant.deals.push(deal._id);
     await merchant.save();
